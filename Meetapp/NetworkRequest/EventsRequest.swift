@@ -12,7 +12,9 @@ import SwiftyJSON
 import RealmSwift
 
 class EventsRequest: BaseAPI {
+  
     let realm = try! Realm()
+  
     func getAllEvents(completionHandler: (_: Void) -> Void) {
        Alamofire.request(.GET, withURL("events"))
         .responseJSON(completionHandler: { response in
@@ -28,4 +30,7 @@ class EventsRequest: BaseAPI {
             completionHandler()
         })
     }
+  
+   
+  
 }

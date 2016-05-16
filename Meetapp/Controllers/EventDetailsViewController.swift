@@ -9,6 +9,7 @@
 import UIKit
 import EventKit
 import EventKitUI
+import RealmSwift
 
 class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
     var event: Event!
@@ -17,6 +18,8 @@ class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var date: UILabel!
     @IBOutlet weak var back: UIButton!
+  
+    @IBOutlet weak var btn_fav: UIButton!
   
     override func viewWillAppear(animated: Bool) {
 
@@ -30,12 +33,24 @@ class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
         title = "Event"
         name.text = event.name
         date.text = event.startTime.toString(format: .Custom("dd MMM yyyy h:mm a"))
+      
+        updateUI()
+      
         
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         back.addTarget(self, action: #selector(backToPrevious), forControlEvents: .TouchUpInside)
     }
 
+  func updateUI(){
+    if (event.isFavorited == true){
+      btn_fav.setImage(UIImage(named: "ico_star_selected"), forState: .Normal)
+    }else{
+      btn_fav.setImage(UIImage(named: "ico_star"), forState: .Normal)
+      
+    }
+  }
+  
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
@@ -49,14 +64,53 @@ class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
     }
   
     @IBAction func addToCalendar(sender: AnyObject) {
-      let eventController = EKEventEditViewController()
-      let store = EKEventStore()
-      eventController.eventStore = store
       
+      
+      let eventStore = EKEventStore()
+      
+      let eventController = EKEventEditViewController()
+
       eventController.editViewDelegate = self
+      eventController.eventStore = eventStore
+    
+      
+      // 'EKEntityTypeReminder' or 'EKEntityTypeEvent'
+      let newEvent:EKEvent = EKEvent(eventStore: eventStore)
+      
+      newEvent.title = event.name
+      newEvent.startDate = event.startTime
+      
+      newEvent.notes = "save via Meetapp"
+      newEvent.calendar = eventStore.defaultCalendarForNewEvents
+      
+      eventController.event = newEvent
+      
       presentViewController(eventController, animated: true) {
-        
+
       }
+
+  
+      eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+        (granted, error) in
+  
+        if (granted) && (error == nil) {
+          
+          print("granted \(granted)")
+          print("error \(error)")
+    
+          do {
+  
+            try eventStore.saveEvent(newEvent, span: EKSpan.ThisEvent)
+            print("Saved Event")
+            
+          }catch{
+            print("Not saved")
+          }
+          
+        }
+      })
+      
+      
     }
     
     @IBAction func navigate(sender: AnyObject) {
@@ -110,8 +164,22 @@ class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
     }
   
   @IBAction func saveFavorite(sender: AnyObject) {
+      let realm = try! Realm()
+      
+      try! realm.write {
+
+        self.event.isFavorited = !self.event.isFavorited
+        
+      }
     
+      //
+      let events = try! Realm().objects(Event).filter("isFavorited == true")
     
+      print("aa \(events)")
+      //
+      updateUI()
+    
+    NSNotificationCenter.defaultCenter().postNotificationName("favChanges", object: nil)
     
   }
   

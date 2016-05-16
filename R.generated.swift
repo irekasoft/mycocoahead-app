@@ -116,8 +116,11 @@ struct R: Rswift.Validatable {
     private init() {}
   }
   
-  /// This `R.reuseIdentifier` struct is generated, and contains static references to 0 reuse identifiers.
+  /// This `R.reuseIdentifier` struct is generated, and contains static references to 1 reuse identifiers.
   struct reuseIdentifier {
+    /// Reuse identifier `Cell`.
+    static let cell: ReuseIdentifier<EventCell> = ReuseIdentifier(identifier: "Cell")
+    
     private init() {}
   }
   
@@ -206,7 +209,6 @@ struct _R: Rswift.Validatable {
         if UIImage(named: "Calendar1") == nil { throw ValidationError(description: "[R.swift] Image named 'Calendar1' is used in storyboard 'Main', but couldn't be loaded.") }
         if UIImage(named: "List") == nil { throw ValidationError(description: "[R.swift] Image named 'List' is used in storyboard 'Main', but couldn't be loaded.") }
         if UIImage(named: "ico_back_black") == nil { throw ValidationError(description: "[R.swift] Image named 'ico_back_black' is used in storyboard 'Main', but couldn't be loaded.") }
-        if UIImage(named: "Time") == nil { throw ValidationError(description: "[R.swift] Image named 'Time' is used in storyboard 'Main', but couldn't be loaded.") }
         if UIImage(named: "ico_star") == nil { throw ValidationError(description: "[R.swift] Image named 'ico_star' is used in storyboard 'Main', but couldn't be loaded.") }
         if _R.storyboard.main().eventDetails() == nil { throw ValidationError(description:"[R.swift] ViewController with identifier 'eventDetails' could not be loaded from storyboard 'Main' as 'EventDetailsViewController'.") }
       }
