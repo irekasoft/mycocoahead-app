@@ -79,32 +79,21 @@ class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
       
       newEvent.title = event.name
       newEvent.startDate = event.startTime
+      newEvent.endDate = event.startTime
       
-      newEvent.notes = "save via Meetapp"
+      newEvent.notes = "saved via MyCocoaHead Meetapp"
       newEvent.calendar = eventStore.defaultCalendarForNewEvents
       
       eventController.event = newEvent
       
-      presentViewController(eventController, animated: true) {
-
-      }
-
   
       eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
         (granted, error) in
   
         if (granted) && (error == nil) {
           
-          print("granted \(granted)")
-          print("error \(error)")
-    
-          do {
-  
-            try eventStore.saveEvent(newEvent, span: EKSpan.ThisEvent)
-            print("Saved Event")
+          self.presentViewController(eventController, animated: true) {
             
-          }catch{
-            print("Not saved")
           }
           
         }
@@ -166,20 +155,22 @@ class EventDetailsViewController: UIViewController, EKEventEditViewDelegate {
   @IBAction func saveFavorite(sender: AnyObject) {
       let realm = try! Realm()
       
-      try! realm.write {
+//      try! realm.write {
+//
+//        self.event.isFavorited = !self.event.isFavorited
+//        
+//      }
+//    
+    realm.beginWrite()
+    self.event.isFavorited = !self.event.isFavorited
+    try! realm.commitWrite()
+    
 
-        self.event.isFavorited = !self.event.isFavorited
-        
-      }
+      
     
-      //
-      let events = try! Realm().objects(Event).filter("isFavorited == true")
-    
-      print("aa \(events)")
-      //
       updateUI()
     
-    NSNotificationCenter.defaultCenter().postNotificationName("favChanges", object: nil)
+      NSNotificationCenter.defaultCenter().postNotificationName("favChanges", object: nil)
     
   }
   
